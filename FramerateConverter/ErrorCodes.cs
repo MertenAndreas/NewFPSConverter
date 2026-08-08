@@ -1,4 +1,4 @@
-﻿//0 	OK
+//0 	OK
 //1 	target exists/overwrite impossible, not requested
 //2 	user canceled
 //3 	no frame rate change
@@ -8,19 +8,18 @@
 //7     initial license was not accepted
 //100 	unknown error
 
-namespace FreeVideoFPSConverter
+namespace NewFPSConverter;
+
+public enum ErrorCodes
 {
-    public enum ErrorCodes
-    {
-        Ok = 0,
-        TargetExists = 1,
-        Canceled = 2,
-        NoFpsChange = 3,
-        IllegalFps = 4,
-        IllegalCommand = 5,
-        SourceFileNoAcceptable = 6,
-        LicenseNotAccepted = 7,
-        TargetFileCorrupt = 8,
-        Unknown = 100,
-    }
+    Ok = 0,
+    TargetExists = 1,
+    Canceled = 2,
+    NoFpsChange = 3,
+    IllegalFps = 4,
+    IllegalCommand = 5,
+    SourceFileNoAcceptable = 6,
+    LicenseNotAccepted = 7,
+    TargetFileCorrupt = 8,
+    Unknown = 100,
 }

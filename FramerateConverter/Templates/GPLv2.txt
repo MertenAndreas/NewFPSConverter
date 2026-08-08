@@ -1,48 +1,37 @@
+ï»¿NEWFPS CONVERTER
+Version 0.1
 
-VIDEO FRAME RATE CONVERTER
+Created by Thomas Sebastian
 
-A free GUI front end for the SVP project
+NewFPS Converter is a video frame rate converter with batch conversion and
+MediaPackage export support. NewFPS Converter itself is licensed under the
+GNU General Public License, version 2.
 
-* This software uses libraries from the smooth video project under the freeware license.
-Download, Source code and more information: http://www.svp-team.com/wiki/Main_Page
+This project is derived from the Free Video FPS Converter code published at:
+https://github.com/freevideofps/freevideofpsconverter/releases
 
-License Agreement
-Please read the following terms and conditions carefully before using SmoothVideo Project ("SVP"). Use of this software indicates you accept the terms of this license agreement and warranty.
+Third-party components
 
-License
-SVP is free only for personal use. In this case, you are granted the right to use and to make an unlimited number of copies of this software.
-If you do not use this program strictly for your personal and non-commercial purposes only then you have to register a license in order to use SVP. Please contact us for permission via e-mail at support@svp-team.com.
+* This software uses FFmpeg libraries and executables under the GNU GPL v2.
+  Download, source code and more information: https://ffmpeg.org/
 
-Restrictions on Use
-SVP must not be decompiled, disassembled, reverse engineered or otherwise modified.
+* This software uses AviSynth components under the GNU GPL v2.
+  Download, source code and more information: http://avisynth.nl/
 
-Disclaimer of Warranty
-SVP is provided "as-is" and without warranty of any kind, express, implied or otherwise, including without limitation, any warranty of merchantability or fitness for a particular purpose.
-In no event shall the author of this software be held liable for data loss, damages, loss of profits or any other kind of loss while using or misusing this software.
+* This software uses SVP processing libraries. Their license text is included
+  in the Licenses directory of the installed application.
+  More information: https://www.svp-team.com/
 
-Use of free and open-source software
-SVP may include software programs that are licensed (or sub-licensed) to the licensee under free software licenses or other types of licenses. The texts with the corresponding conditions are available to the licensee in the product installation directory.
+The full GNU GPL v2 license text follows.
+                    GNU GENERAL PUBLIC LICENSE
+                       Version 2, June 1991
 
-Copyright (C) 2014 SVP-Team.com. All rights reserved
-
-* This software uses libraries from the FFmpeg project under the GPLv2.    
-Download, Source code and more information: http://www.ffmpeg.org/
-
-* This software uses libraries from the avisynth project under the GPLv2.
-Download, Source code and more information: http://avisynth.nl/
-
-* The Video Frame Rate Converter itself is licensed under GPL v2. 
-Download, Source code and more information: https://github.com/freevideofps/freevideofpsconverter
-
-		    GNU GENERAL PUBLIC LICENSE
-		       Version 2, June 1991
-
- Copyright (C) 1989, 1991 Free Software Foundation, Inc.
-                       59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ Copyright (C) 1989, 1991 Free Software Foundation, Inc.,
+ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-			    Preamble
+                            Preamble
 
   The licenses for most software are designed to take away your
 freedom to share and change it.  By contrast, the GNU General Public
@@ -51,7 +40,7 @@ software--to make sure the software is free for all its users.  This
 General Public License applies to most of the Free Software
 Foundation's software and to any other program whose authors commit to
 using it.  (Some other Free Software Foundation software is covered by
-the GNU Library General Public License instead.)  You can apply it to
+the GNU Lesser General Public License instead.)  You can apply it to
 your programs, too.
 
   When we speak of free software, we are referring to freedom, not
@@ -92,8 +81,7 @@ patent must be licensed for everyone's free use or not licensed at all.
   The precise terms and conditions for copying, distribution and
 modification follow.
 
-
-		    GNU GENERAL PUBLIC LICENSE
+                    GNU GENERAL PUBLIC LICENSE
    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
   0. This License applies to any program or other work which contains
@@ -147,7 +135,6 @@ above, provided that you also meet all of these conditions:
     License.  (Exception: if the Program itself is interactive but
     does not normally print such an announcement, your work based on
     the Program is not required to print an announcement.)
-
 
 These requirements apply to the modified work as a whole.  If
 identifiable sections of that work are not derived from the Program,
@@ -207,7 +194,6 @@ access to copy the source code from the same place counts as
 distribution of the source code, even though third parties are not
 compelled to copy the source along with the object code.
 
-
   4. You may not copy, modify, sublicense, or distribute the Program
 except as expressly provided under this License.  Any attempt
 otherwise to copy, modify, sublicense or distribute the Program is
@@ -265,7 +251,6 @@ impose that choice.
 This section is intended to make thoroughly clear what is believed to
 be a consequence of the rest of this License.
 
-
   8. If the distribution and/or use of the Program is restricted in
 certain countries either by patents or by copyrighted interfaces, the
 original copyright holder who places the Program under this License
@@ -295,34 +280,31 @@ make exceptions for this.  Our decision will be guided by the two goals
 of preserving the free status of all derivatives of our free software and
 of promoting the sharing and reuse of software generally.
 
-			    NO WARRANTY
+                            NO WARRANTY
 
-  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO
-WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE
-LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT
-HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS"
-WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE
-ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS
-WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE
-COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED
+OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS
+TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE
+PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING,
+REPAIR OR CORRECTION.
 
-  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN
-WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY
-MODIFY AND/OR REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE
-LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL,
-INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR
-INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS
-OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED
-BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE
-WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY
-HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES,
+INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING
+OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED
+TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY
+YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER
+PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+                     END OF TERMS AND CONDITIONS
 
-
-	    How to Apply These Terms to Your New Programs
+            How to Apply These Terms to Your New Programs
 
   If you develop a new program, and you want it to be of the greatest
 possible use to the public, the best way to achieve this is to make it
@@ -346,10 +328,9 @@ the "copyright" line and a pointer to where the full notice is found.
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 Also add information on how to contact you by electronic and paper mail.
 
@@ -379,8 +360,6 @@ necessary.  Here is a sample; alter the names:
 This General Public License does not permit incorporating your program into
 proprietary programs.  If your program is a subroutine library, you may
 consider it more useful to permit linking proprietary applications with the
-library.  If this is what you want to do, use the GNU Library General
+library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.
-
-
 

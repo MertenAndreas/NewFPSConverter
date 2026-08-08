@@ -1,10 +1,11 @@
-﻿#region
+#region
 
 using System;
 
 #endregion
 
 #pragma warning disable 1591
+#nullable disable
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable MemberCanBePrivate.Global
@@ -13,7 +14,7 @@ using System;
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable InconsistentNaming
 
-namespace FreeVideoFPSConverter.Properties
+namespace NewFPSConverter.Properties
 {
     /// <summary>
     ///     Indicates that the value of the marked element could be <c>null</c> sometimes,

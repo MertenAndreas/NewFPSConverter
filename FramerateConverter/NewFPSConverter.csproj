@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Images\app.ico</ApplicationIcon>
+    <RootNamespace>NewFPSConverter</RootNamespace>
+    <AssemblyName>NewFPSConverter</AssemblyName>
+    <TargetName>NewFPSConverter</TargetName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>CA1416</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Templates\FpsConversionInput.avs.template" />
+    <None Remove="Templates\Usage.rtf" />
+    <None Remove="Templates\GPLv2.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\FpsConversionInput.avs.template" />
+    <EmbeddedResource Include="Templates\Usage.rtf" />
+    <EmbeddedResource Include="Templates\GPLv2.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="WPF-UI" Version="3.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\logo.png" />
+    <Resource Include="Images\app.ico" />
+    <Resource Include="Images\about_32.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="tools\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

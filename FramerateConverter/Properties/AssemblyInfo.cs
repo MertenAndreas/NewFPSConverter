@@ -11,12 +11,12 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("FreeVideoFPSConverter")]
-[assembly: AssemblyDescription("Free Frontend GUI for svp project")]
+[assembly: AssemblyTitle("NewFPS Converter")]
+[assembly: AssemblyDescription("Video frame rate converter with batch conversion and MediaPackage export support")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("FreeVideoFPSConverter")]
-[assembly: AssemblyProduct("FreeVideoFPSConverter")]
-[assembly: AssemblyCopyright("Copyright © FreeVideoFPSConverter")]
+[assembly: AssemblyCompany("NewFPS Converter")]
+[assembly: AssemblyProduct("NewFPS Converter")]
+[assembly: AssemblyCopyright("Created by Thomas Sebastian")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -57,7 +57,8 @@ using System.Windows;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("0.0.9.8")]
-[assembly: AssemblyFileVersion("0.0.9.8")]
+[assembly: AssemblyVersion("0.1.0.0")]
+[assembly: AssemblyFileVersion("0.1.0.0")]
+[assembly: AssemblyInformationalVersion("0.1")]
 [assembly: Guid("E2312D35-14DC-443E-82BB-D5DBE9650EBC")]
 [assembly: NeutralResourcesLanguage("en")]

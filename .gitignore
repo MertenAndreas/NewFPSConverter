@@ -9,4 +9,7 @@
 /*.user
 /packages
 /setupFreeVideoFPSConverter.exe
+/setupNewFPSConverter-*.exe
+/setupNewFPSConverter-*.zip
+/FramerateConverter/tools/ffplay.exe
 /FramerateConverter/*.user

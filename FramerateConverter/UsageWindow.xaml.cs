@@ -1,5 +1,3 @@
-﻿#region
-
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -7,15 +5,13 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 
-#endregion
+namespace NewFPSConverter;
 
-namespace FreeVideoFPSConverter
+/// <summary>
+///     Interaction logic for UsageWindow.xaml
+/// </summary>
+public partial class UsageWindow
 {
-    /// <summary>
-    ///     Interaction logic for UsageWindow.xaml
-    /// </summary>
-    public partial class UsageWindow
-    {
         public UsageWindow()
         {
             InitializeComponent();
@@ -23,9 +19,9 @@ namespace FreeVideoFPSConverter
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            const string resourceName = "FreeVideoFPSConverter.Templates.Usage.rtf";
+            const string resourceName = "NewFPSConverter.Templates.Usage.rtf";
 
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+            using (Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
             {
                 if (stream != null)
                 {
@@ -51,12 +47,11 @@ namespace FreeVideoFPSConverter
         /// <param name="e">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
         private void HandleClickOnHyperlink(object sender, MouseButtonEventArgs e)
         {
-            Hyperlink hyperlink = sender as Hyperlink;
+            Hyperlink? hyperlink = sender as Hyperlink;
 
-            if (hyperlink != null)
+            if (hyperlink?.NavigateUri != null)
             {
-                Process.Start(hyperlink.NavigateUri.ToString());
+                Process.Start(new ProcessStartInfo(hyperlink.NavigateUri.ToString()) { UseShellExecute = true });
             }
         }
     }
-}
