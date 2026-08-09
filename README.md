@@ -4,12 +4,15 @@ NewFPS Converter is a Windows desktop tool for converting video files to a
 specified frame rate. It is designed for workflows where a fixed output frame
 rate is required, including video preparation for e:cue Sympholight projects.
 
+Current release: `0.1.0.1`
+
 ## Features
 
 - Convert single videos or batches of videos to a selected target FPS.
 - Package converted output for MediaPackage-based workflows.
 - Use bundled FFmpeg tools for local conversion.
 - Detect available GPU acceleration options where supported.
+- Run conversions from the terminal with proper output and exit codes.
 - Install with the published Windows setup package.
 
 ## Download
@@ -37,6 +40,26 @@ dotnet publish FramerateConverter\NewFPSConverter.csproj -c Release
 ```
 
 Build the installer with Inno Setup using `installer.iss`.
+
+## Command Line
+
+Single-file conversion uses source and target files:
+
+```powershell
+NewFPSConverter.exe --source "input.mp4" --target "output.mpkg" --frames-per-second 30
+```
+
+If `--target` has no extension, `.mpkg` is appended. If `--target` is omitted,
+the output defaults to the source filename with the `.mpkg` extension.
+
+Batch conversion uses source and target folders:
+
+```powershell
+NewFPSConverter.exe --batch --source-dir "C:\Videos\Input" --target-dir "C:\Videos\Output" --frames-per-second 30
+```
+
+Batch output defaults to MediaPackage (`.mpkg`). Use `--overwrite` to replace
+existing target files.
 
 ## Background
 

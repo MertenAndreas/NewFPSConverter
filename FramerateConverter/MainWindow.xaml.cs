@@ -211,6 +211,8 @@ namespace NewFPSConverter;
         /// </summary>
         private Options _cmdLineOpts = null!;
 
+        private bool _isCommandLineMode;
+
         /// <summary>
         ///     The conversion canceled
         /// </summary>
@@ -283,9 +285,11 @@ namespace NewFPSConverter;
             DataContext = this;
 
             var args = Environment.GetCommandLineArgs().Skip(1).ToArray();
-            Parser.Default.ParseArguments<Options>(args)
+            _isCommandLineMode = args.Length > 0;
+            new Parser(settings => settings.HelpWriter = Console.Out)
+                .ParseArguments<Options>(args)
                 .WithParsed(Run)
-                .WithNotParsed(errs => Exit());
+                .WithNotParsed(Exit);
         }
 
         /// <summary>
@@ -624,19 +628,26 @@ namespace NewFPSConverter;
 
             if (!string.IsNullOrEmpty(_cmdLineOpts.TargetFile))
             {
-                TargetFilename = _cmdLineOpts.TargetFile;
+                TargetFilename = EnsureTargetExtension(_cmdLineOpts.TargetFile);
                 var targetExtension = Path.GetExtension(_cmdLineOpts.TargetFile);
                 if (!string.IsNullOrEmpty(targetExtension))
                 {
                     ComboBoxBatchOutputFormat.SelectedValue = targetExtension.ToLowerInvariant();
                 }
             }
+            else if (_isCommandLineMode && !_cmdLineOpts.BatchMode && !string.IsNullOrEmpty(_cmdLineOpts.SourceFile))
+            {
+                TargetFilename = Path.ChangeExtension(_cmdLineOpts.SourceFile, CompressedFileExtension);
+            }
 
             if (!string.IsNullOrEmpty(_cmdLineOpts.SourceDirectory))
             {
                 TextBoxSourceDirectory.Text = _cmdLineOpts.SourceDirectory;
                 LastSourceDirectory = _cmdLineOpts.SourceDirectory;
-                UpdateDetectedFiles(_cmdLineOpts.SourceDirectory);
+                if (Directory.Exists(_cmdLineOpts.SourceDirectory))
+                {
+                    UpdateDetectedFiles(_cmdLineOpts.SourceDirectory);
+                }
             }
 
             if (!string.IsNullOrEmpty(_cmdLineOpts.TargetDirectory))
@@ -670,7 +681,7 @@ namespace NewFPSConverter;
             {
                 if (_cmdLineOpts.FramesPerSecond < 10)
                 {
-                    if (_cmdLineOpts.BatchMode)
+                    if (_isCommandLineMode)
                     {
                         Application.Current.Shutdown((int)ErrorCodes.IllegalFps);
                     }
@@ -680,7 +691,7 @@ namespace NewFPSConverter;
 
                 if (_cmdLineOpts.FramesPerSecond > 200)
                 {
-                    if (_cmdLineOpts.BatchMode)
+                    if (_isCommandLineMode)
                     {
                         Application.Current.Shutdown((int)ErrorCodes.IllegalFps);
                     }
@@ -703,6 +714,13 @@ namespace NewFPSConverter;
             {
                 if (keyApplication.GetValue("LicenseAccepted") == null)
                 {
+                    if (_isCommandLineMode)
+                    {
+                        AddToLog("Error: license has not been accepted. Start NewFPS Converter once without command-line arguments and accept the license.");
+                        Application.Current.Shutdown((int)ErrorCodes.LicenseNotAccepted);
+                        return;
+                    }
+
                     if (ShowLicense())
                     {
                         keyApplication.SetValue("LicenseAccepted", "1");
@@ -715,7 +733,7 @@ namespace NewFPSConverter;
                 }
             }
 
-            if (_cmdLineOpts.BatchMode)
+            if (_isCommandLineMode)
             {
                 TextBoxSourceFilename.IsEnabled = false;
                 ButtonBrowseSource.IsEnabled = false;
@@ -738,16 +756,21 @@ namespace NewFPSConverter;
                     (Action)(() => ButtonConvert_Click(ButtonConvert, null)));
             }
 
-            if (!_cmdLineOpts.BatchMode && !string.IsNullOrEmpty(SourceFilename))
+            if (!_isCommandLineMode && !string.IsNullOrEmpty(SourceFilename))
             {
                 GetVideoFileInformationAndUpdateFramerRate();
                 ApplySlCompatibilityState();
             }
         }
 
-        private void Exit()
+        private void Exit(IEnumerable<Error> errors)
         {
-            Application.Current.Shutdown((int)ErrorCodes.IllegalCommand);
+            var exitCode = errors.Any(error =>
+                error.Tag is ErrorType.HelpRequestedError or ErrorType.VersionRequestedError)
+                ? ErrorCodes.Ok
+                : ErrorCodes.IllegalCommand;
+
+            Application.Current.Shutdown((int)exitCode);
         }
 
         /// <summary>
@@ -779,6 +802,13 @@ namespace NewFPSConverter;
         {
             var batchMode = ToggleSwitchBatchMode.IsChecked == true;
             SetBatchModeUi(batchMode);
+        }
+
+        private static string EnsureTargetExtension(string targetFile)
+        {
+            return string.IsNullOrEmpty(Path.GetExtension(targetFile))
+                ? Path.ChangeExtension(targetFile, CompressedFileExtension)
+                : targetFile;
         }
 
         private void SetBatchModeUi(bool batchMode)
@@ -1112,7 +1142,7 @@ namespace NewFPSConverter;
 
         private void ShutdownIfCommandLineBatch(ErrorCodes errorCode)
         {
-            if (_cmdLineOpts.BatchMode && Application.Current != null)
+            if (_isCommandLineMode && Application.Current != null)
             {
                 Application.Current.Shutdown((int)errorCode);
             }
@@ -1245,7 +1275,7 @@ namespace NewFPSConverter;
             var selectedExtension = ComboBoxBatchOutputFormat.SelectedValue as string;
             return IsSupportedBatchOutputExtension(selectedExtension)
                 ? selectedExtension!.ToLowerInvariant()
-                : ".mp4";
+                : CompressedFileExtension;
         }
 
         private static bool IsSupportedBatchOutputExtension(string? extension)
@@ -1934,7 +1964,7 @@ namespace NewFPSConverter;
 
         private void OpenOutputDirectoryIfRequested(string? outputPath)
         {
-            if (!OpenOutputDirectoryWhenDone || _cmdLineOpts.BatchMode || string.IsNullOrWhiteSpace(outputPath))
+            if (!OpenOutputDirectoryWhenDone || _isCommandLineMode || string.IsNullOrWhiteSpace(outputPath))
             {
                 return;
             }
@@ -2049,7 +2079,7 @@ namespace NewFPSConverter;
                 AddToLog("Error: source filename " + SourceFilename + " could not be analyzed!");
                 UpdateAnalysisPreviewText();
 
-                if (_cmdLineOpts.BatchMode)
+                if (_isCommandLineMode)
                 {
                     Application.Current.Shutdown((int) ErrorCodes.SourceFileNoAcceptable);
                 }
@@ -2062,7 +2092,7 @@ namespace NewFPSConverter;
                 AddToLog("Error: source filename " + SourceFilename + " could not be analyzed!");
                 UpdateAnalysisPreviewText();
 
-                if (_cmdLineOpts.BatchMode)
+                if (_isCommandLineMode)
                 {
                     Application.Current.Shutdown((int) ErrorCodes.SourceFileNoAcceptable);
                 }
@@ -2075,7 +2105,7 @@ namespace NewFPSConverter;
                 AddToLog("Error: source filename " + SourceFilename + " could not be analyzed!");
                 UpdateAnalysisPreviewText();
 
-                if (_cmdLineOpts.BatchMode)
+                if (_isCommandLineMode)
                 {
                     Application.Current.Shutdown((int) ErrorCodes.SourceFileNoAcceptable);
                 }
@@ -2088,7 +2118,7 @@ namespace NewFPSConverter;
                 AddToLog("Error: source filename " + SourceFilename + " could not be analyzed!");
                 UpdateAnalysisPreviewText();
 
-                if (_cmdLineOpts.BatchMode)
+                if (_isCommandLineMode)
                 {
                     Application.Current.Shutdown((int) ErrorCodes.SourceFileNoAcceptable);
                 }
@@ -2140,7 +2170,7 @@ namespace NewFPSConverter;
             {
                 AddToLog("Error: source filename is empty");
 
-                if (_cmdLineOpts.BatchMode)
+                if (_isCommandLineMode)
                 {
                     Application.Current.Shutdown((int) ErrorCodes.IllegalCommand);
                 }
@@ -2154,7 +2184,7 @@ namespace NewFPSConverter;
             {
                 AddToLog("Error: source filename has illegal extension");
 
-                if (_cmdLineOpts.BatchMode)
+                if (_isCommandLineMode)
                 {
                     Application.Current.Shutdown((int) ErrorCodes.IllegalCommand);
                 }
@@ -2166,7 +2196,7 @@ namespace NewFPSConverter;
             {
                 AddToLog("Error: target filename is empty");
 
-                if (_cmdLineOpts.BatchMode)
+                if (_isCommandLineMode)
                 {
                     Application.Current.Shutdown((int) ErrorCodes.IllegalCommand);
                 }
@@ -2175,12 +2205,17 @@ namespace NewFPSConverter;
             }
 
             var targetDir = Path.GetDirectoryName(TargetFilename);
+            if (string.IsNullOrEmpty(targetDir))
+            {
+                TargetFilename = Path.GetFullPath(TargetFilename);
+                targetDir = Path.GetDirectoryName(TargetFilename);
+            }
 
             if (targetDir == null || !Directory.Exists(targetDir))
             {
                 AddToLog("Error: target filename contains illegal directory");
 
-                if (_cmdLineOpts.BatchMode)
+                if (_isCommandLineMode)
                 {
                     Application.Current.Shutdown((int) ErrorCodes.IllegalCommand);
                 }
@@ -2194,7 +2229,7 @@ namespace NewFPSConverter;
             {
                 AddToLog("Error: target filename has illegal extension");
 
-                if (_cmdLineOpts.BatchMode)
+                if (_isCommandLineMode)
                 {
                     Application.Current.Shutdown((int) ErrorCodes.IllegalCommand);
                 }
@@ -2207,7 +2242,7 @@ namespace NewFPSConverter;
             {
                 AddToLog("Error: source filename " + SourceFilename + " does not exist!");
 
-                if (_cmdLineOpts.BatchMode)
+                if (_isCommandLineMode)
                 {
                     Application.Current.Shutdown((int) ErrorCodes.IllegalCommand);
                 }
@@ -2219,7 +2254,21 @@ namespace NewFPSConverter;
             {
                 MessageBoxResult result;
                 _replaceTargetFile = false;
-                if (_cmdLineOpts.BatchMode && _cmdLineOpts.Overwrite)
+                if (_isCommandLineMode)
+                {
+                    if (_cmdLineOpts.Overwrite)
+                    {
+                        result = MessageBoxResult.Yes;
+                        _replaceTargetFile = true;
+                    }
+                    else
+                    {
+                        AddToLog("Error: target file already exists: " + TargetFilename);
+                        Application.Current.Shutdown((int)ErrorCodes.TargetExists);
+                        return;
+                    }
+                }
+                else if (_cmdLineOpts.BatchMode && _cmdLineOpts.Overwrite)
                 {
                     result = MessageBoxResult.Yes;
                     _replaceTargetFile = true;
@@ -2268,7 +2317,7 @@ namespace NewFPSConverter;
                 {
                     AddToLog("Error: User chose not to overwrite existing file: " + TargetFilename);
 
-                    if (_cmdLineOpts.BatchMode)
+                    if (_isCommandLineMode)
                     {
                         Application.Current.Shutdown((int) ErrorCodes.TargetExists);
                     }
@@ -2294,7 +2343,7 @@ namespace NewFPSConverter;
             {
                 AddToLog("Error: Frame rate exceeds range 10-5000!");
 
-                if (_cmdLineOpts.BatchMode)
+                if (_isCommandLineMode)
                 {
                     Application.Current.Shutdown((int) ErrorCodes.IllegalFps);
                 }
@@ -2549,7 +2598,7 @@ namespace NewFPSConverter;
 
                 AddToLog("Error, Exception: " + e.Message);
 
-                if (_cmdLineOpts.BatchMode)
+                if (_isCommandLineMode)
                 {
                     Application.Current.Shutdown((int) ErrorCodes.Unknown);
                 }
@@ -2727,7 +2776,7 @@ namespace NewFPSConverter;
 
                 CleanUp();
 
-                if (_cmdLineOpts.BatchMode && Application.Current != null)
+                if (_isCommandLineMode && Application.Current != null)
                 {
                     Application.Current.Shutdown((int)result);
                 }
@@ -2928,7 +2977,7 @@ namespace NewFPSConverter;
 
             _conversionCanceled = true;
 
-            if (_cmdLineOpts.BatchMode)
+            if (_isCommandLineMode)
             {
                 Application.Current.Shutdown((int) ErrorCodes.Canceled);
             }
@@ -3076,6 +3125,11 @@ namespace NewFPSConverter;
         /// <param name="message">The message.</param>
         private void AddToLog(string message)
         {
+            if (_isCommandLineMode)
+            {
+                Console.WriteLine(message);
+            }
+
             AddToListBoxAsync(message);
             Trace.WriteLine(message);
         }
@@ -3092,7 +3146,7 @@ namespace NewFPSConverter;
 
             _conversionCanceled = true;
 
-            if (_cmdLineOpts != null && _cmdLineOpts.BatchMode)
+            if (_cmdLineOpts != null && _isCommandLineMode)
             {
                 Application.Current.Shutdown((int) ErrorCodes.Canceled);
             }
@@ -3170,7 +3224,7 @@ namespace NewFPSConverter;
         {
             try
             {
-                var overwriteFile = _replaceTargetFile || _cmdLineOpts.BatchMode && _cmdLineOpts.Overwrite;
+                var overwriteFile = _replaceTargetFile || _isCommandLineMode && _cmdLineOpts.Overwrite;
                 if (overwriteFile && File.Exists(TargetFilename))
                 {
                     DeleteFileOrFolder(TargetFilename);
@@ -3217,7 +3271,7 @@ namespace NewFPSConverter;
             {
                 AddToLog("Error: Frame analysis failed for " + videoFilename + "!");
 
-                if (_cmdLineOpts.BatchMode)
+                if (_isCommandLineMode)
                 {
                     Application.Current.Shutdown((int) ErrorCodes.TargetFileCorrupt);
                 }
@@ -3251,7 +3305,7 @@ namespace NewFPSConverter;
             {
                 AddToLog("Error: Frame analysis failed for " + videoFilename + "!");
 
-                if (_cmdLineOpts.BatchMode)
+                if (_isCommandLineMode)
                 {
                     Application.Current.Shutdown((int) ErrorCodes.TargetFileCorrupt);
                 }

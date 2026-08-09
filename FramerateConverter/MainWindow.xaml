@@ -160,7 +160,7 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Format" VerticalAlignment="Center" Width="60" FontWeight="Medium" />
-                            <ComboBox Grid.Column="1" x:Name="ComboBoxBatchOutputFormat" Margin="5,0" SelectedValuePath="Tag" SelectedValue=".mp4">
+                            <ComboBox Grid.Column="1" x:Name="ComboBoxBatchOutputFormat" Margin="5,0" SelectedValuePath="Tag" SelectedValue=".mpkg">
                                 <ComboBoxItem Tag=".mp4">MP4 Video</ComboBoxItem>
                                 <ComboBoxItem Tag=".mkv">Matroska Video</ComboBoxItem>
                                 <ComboBoxItem Tag=".avi">AVI Video</ComboBoxItem>

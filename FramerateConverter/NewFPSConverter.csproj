@@ -1,12 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Images\app.ico</ApplicationIcon>
     <RootNamespace>NewFPSConverter</RootNamespace>
     <AssemblyName>NewFPSConverter</AssemblyName>
     <TargetName>NewFPSConverter</TargetName>
+    <StartupObject>NewFPSConverter.Program</StartupObject>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
