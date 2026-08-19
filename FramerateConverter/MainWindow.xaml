@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         Title="NewFPS Converter" 
-        MinWidth="1180" MinHeight="780" Width="1180" Height="780"
+        MinWidth="1180" MinHeight="680" Width="1180" Height="820"
         WindowStartupLocation="CenterScreen"
         WindowBackdropType="Mica"
         ExtendsContentIntoTitleBar="True"
@@ -232,9 +232,10 @@
                 </Grid.RowDefinitions>
 
                 <!-- Settings Panel Card -->
-                <ui:Card Grid.Row="0" Margin="0,0,0,12" Padding="15" VerticalAlignment="Stretch">
-                    <StackPanel>
-                        <TextBlock Text="Configuration" FontSize="16" FontWeight="SemiBold" Foreground="#107C41" Margin="0,0,0,12"/>
+                <ui:Card Grid.Row="0" Margin="0,0,0,12" Padding="15,15,6,15" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="0,0,10,0">
+                        <StackPanel>
+                            <TextBlock Text="Configuration" FontSize="16" FontWeight="SemiBold" Foreground="#107C41" Margin="0,0,0,12"/>
 
                             <!-- Video Frame Rate Control -->
                             <StackPanel Margin="0,0,0,15">
@@ -318,6 +319,8 @@
                                 <TextBlock Text="{Binding HardwareStatusText}" FontSize="11" Foreground="#888888" Margin="0,4,0,0"/>
                             </StackPanel>
 
+                            <Separator Margin="0,5,0,15" />
+
                             <!-- Toggles and Switches -->
                             <TextBlock Text="Advanced Options" FontSize="13" FontWeight="SemiBold" Foreground="#107C41" Margin="0,0,0,10"/>
                             
@@ -345,6 +348,7 @@
                             <ui:ToggleSwitch x:Name="CheckBoxDebug" Content="Debug Engine Output" 
                                              IsChecked="{Binding DebugMode, Mode=TwoWay}" Margin="0,4"/>
                         </StackPanel>
+                    </ScrollViewer>
                 </ui:Card>
 
                 <!-- Action Button Card -->
