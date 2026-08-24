@@ -4,7 +4,7 @@ NewFPS Converter is a Windows desktop tool for converting video files to a
 specified frame rate. It is designed for workflows where a fixed output frame
 rate is required, including video preparation for e:cue Sympholight projects.
 
-Current release: `0.1.0.3`
+Current release: `0.1.0.4`
 
 ## Features
 
