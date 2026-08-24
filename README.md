@@ -4,7 +4,7 @@ NewFPS Converter is a Windows desktop tool for converting video files to a
 specified frame rate. It is designed for workflows where a fixed output frame
 rate is required, including video preparation for e:cue Sympholight projects.
 
-Current release: `0.1.0.2`
+Current release: `0.1.0.3`
 
 ## Features
 
@@ -13,7 +13,7 @@ Current release: `0.1.0.2`
 - Use bundled FFmpeg tools for local conversion.
 - Detect available GPU acceleration options where supported.
 - Run conversions from the terminal with proper output and exit codes.
-- Install with the published Windows setup package.
+- Install with the published Windows setup package (self-contained, no separate .NET installation required).
 
 ## Download
 
@@ -36,7 +36,7 @@ Requirements:
 Build the application:
 
 ```powershell
-dotnet publish FramerateConverter\NewFPSConverter.csproj -c Release
+dotnet publish FramerateConverter\NewFPSConverter.csproj -c Release -r win-x64 --self-contained true
 ```
 
 Build the installer with Inno Setup using `installer.iss`.

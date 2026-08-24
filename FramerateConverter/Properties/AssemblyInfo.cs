@@ -57,8 +57,8 @@ using System.Windows;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("0.1.0.2")]
-[assembly: AssemblyFileVersion("0.1.0.2")]
-[assembly: AssemblyInformationalVersion("0.1.0.2")]
+[assembly: AssemblyVersion("0.1.0.3")]
+[assembly: AssemblyFileVersion("0.1.0.3")]
+[assembly: AssemblyInformationalVersion("0.1.0.3")]
 [assembly: Guid("E2312D35-14DC-443E-82BB-D5DBE9650EBC")]
 [assembly: NeutralResourcesLanguage("en")]

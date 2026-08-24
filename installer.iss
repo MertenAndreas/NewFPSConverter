@@ -1,13 +1,13 @@
 ; NewFPS Converter installer
 ; Requires Inno Setup 6.7.3 or newer stable 6.x.
 ; Build the app first with:
-;   dotnet publish FramerateConverter\NewFPSConverter.csproj -c Release
+;   dotnet publish FramerateConverter\NewFPSConverter.csproj -c Release -r win-x64 --self-contained true
 
 #define MyAppName "NewFPS Converter"
 #define MyAppPublisher "NewFPS Converter"
 #define MyAppExeName "NewFPSConverter.exe"
 #define MyAppRegistryKey "Software\NewFPSConverter"
-#define MyAppBuildDir "FramerateConverter\bin\Release\net10.0-windows\publish"
+#define MyAppBuildDir "FramerateConverter\bin\Release\net10.0-windows\win-x64\publish"
 #define MyAppExePath MyAppBuildDir + "\" + MyAppExeName
 #define MyAppVersion GetVersionNumbersString(MyAppExePath)
 
