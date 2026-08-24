@@ -186,6 +186,39 @@
       line-height: 1.45;
     }
 
+    .cli-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 0.95rem;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .cli-table th, .cli-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .cli-table th {
+      background: #1e293b;
+      color: #f8fafc;
+      font-weight: 600;
+    }
+
+    .cli-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .cli-table code {
+      display: inline;
+      padding: 2px 6px;
+      font-size: 0.88rem;
+    }
+
     footer {
       border-top: 1px solid var(--line);
       padding: 24px 0;
@@ -255,6 +288,62 @@
         <p class="muted">Batch conversion uses source and target folders.</p>
         <code>NewFPSConverter.exe --batch --source-dir "C:\Videos\Input" --target-dir "C:\Videos\Output" --frames-per-second 30 --no-gui</code>
       </div>
+
+      <h3 style="margin-top: 24px;">Options Reference</h3>
+      <table class="cli-table">
+        <thead>
+          <tr>
+            <th>Option</th>
+            <th>Short</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>--batch</code></td><td><code>-b</code></td><td>Enable batch behavior: run once, then terminate automatically.</td></tr>
+          <tr><td><code>--source &lt;file&gt;</code></td><td><code>-s</code></td><td>Input video file path.</td></tr>
+          <tr><td><code>--source-dir &lt;dir&gt;</code></td><td><code>-d</code></td><td>Source directory for batch processing multiple videos.</td></tr>
+          <tr><td><code>--target &lt;file&gt;</code></td><td><code>-t</code></td><td>Output video or container file (<code>.mpkg</code>, <code>.mp4</code>, <code>.h264</code>, etc.).</td></tr>
+          <tr><td><code>--target-dir &lt;dir&gt;</code></td><td><code>-O</code></td><td>Target directory for batch output files.</td></tr>
+          <tr><td><code>--frames-per-second &lt;fps&gt;</code></td><td><code>-f</code></td><td>Target framerate (allowed: 10 &ndash; 200 FPS).</td></tr>
+          <tr><td><code>--key-frames-only</code></td><td><code>-k</code></td><td>Output video will consist only of key frames (I-frames).</td></tr>
+          <tr><td><code>--no-flicker</code></td><td><code>-n</code></td><td>Reduce flicker by adjusting framerate.</td></tr>
+          <tr><td><code>--min-frame-rate</code></td><td><code>-m</code></td><td>Treat target FPS as minimum (do not reduce FPS).</td></tr>
+          <tr><td><code>--overwrite</code></td><td><code>-o</code></td><td>Overwrite existing target file(s) without prompting.</td></tr>
+          <tr><td><code>--audio</code></td><td><code>-a</code></td><td>Keep original audio stream(s) if present.</td></tr>
+          <tr><td><code>--sl-compatibility</code></td><td><code>-l</code></td><td>Enable Sympholight compatible H.264 output settings.</td></tr>
+          <tr><td><code>--gpu-mediapackage</code></td><td><code>-p</code></td><td>Allow GPU hardware encoding for MediaPackage/H.264.</td></tr>
+          <tr><td><code>--force-width &lt;px&gt;</code></td><td><code>-W</code></td><td>Enforce target video width in pixels.</td></tr>
+          <tr><td><code>--force-height &lt;px&gt;</code></td><td><code>-H</code></td><td>Enforce target video height in pixels.</td></tr>
+          <tr><td><code>--bitrate &lt;kbits&gt;</code></td><td><code>-r</code></td><td>Target bitrate in kbit/s (0 = auto).</td></tr>
+          <tr><td><code>--gpu &lt;type&gt;</code></td><td><code>-g</code></td><td>GPU encoder: <code>auto</code>, <code>nvidia</code>, <code>amd</code>, <code>intel</code>, or <code>none</code> (CPU only).</td></tr>
+          <tr><td><code>--parallel-jobs &lt;n&gt;</code></td><td><code>-j</code></td><td>Number of parallel encoding processes (0 = auto).</td></tr>
+          <tr><td><code>--no-gui</code></td><td></td><td>Run task completely in background without GUI window (aliases: <code>--headless</code>, <code>--background</code>).</td></tr>
+          <tr><td><code>--help</code></td><td></td><td>Display command line help screen.</td></tr>
+          <tr><td><code>--version</code></td><td></td><td>Display version information.</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top: 24px;">Return Codes</h3>
+      <table class="cli-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>0</code></td><td>OK (Conversion completed successfully)</td></tr>
+          <tr><td><code>1</code></td><td>Target file already exists and cannot be overwritten</td></tr>
+          <tr><td><code>2</code></td><td>Process was cancelled</td></tr>
+          <tr><td><code>3</code></td><td>Target framerate does not differ enough from source framerate</td></tr>
+          <tr><td><code>4</code></td><td>Target framerate is illegal (allowed: 10 &ndash; 200 FPS)</td></tr>
+          <tr><td><code>5</code></td><td>Command line parameter error / invalid arguments</td></tr>
+          <tr><td><code>6</code></td><td>Input file error (not a valid video file)</td></tr>
+          <tr><td><code>7</code></td><td>GPL v2 license was not accepted</td></tr>
+          <tr><td><code>8</code></td><td>Target file is corrupt</td></tr>
+          <tr><td><code>100</code></td><td>Generic / unknown error</td></tr>
+        </tbody>
+      </table>
     </section>
 
     <section class="section">

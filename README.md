@@ -61,6 +61,47 @@ NewFPSConverter.exe --batch --source-dir "C:\Videos\Input" --target-dir "C:\Vide
 Batch output defaults to MediaPackage (`.mpkg`). Use `--overwrite` to replace
 existing target files.
 
+### Command Line Options
+
+| Option | Short | Description |
+|---|---|---|
+| `--batch` | `-b` | Enable batch behavior: run once, then terminate automatically. |
+| `--source <file>` | `-s` | Input video file path. |
+| `--source-dir <dir>` | `-d` | Source directory for batch processing multiple videos. |
+| `--target <file>` | `-t` | Output video or container file (`.mpkg`, `.mp4`, `.h264`, etc.). |
+| `--target-dir <dir>` | `-O` | Target directory for batch output files. |
+| `--frames-per-second <fps>` | `-f` | Target framerate (allowed: 10 - 200 FPS). |
+| `--key-frames-only` | `-k` | Output video will consist only of key frames (I-frames). |
+| `--no-flicker` | `-n` | Reduce flicker by adjusting framerate. |
+| `--min-frame-rate` | `-m` | Treat target FPS as minimum (do not reduce FPS). |
+| `--overwrite` | `-o` | Overwrite existing target file(s) without prompting. |
+| `--audio` | `-a` | Keep original audio stream(s) if present. |
+| `--sl-compatibility` | `-l` | Enable Sympholight compatible H.264 output settings. |
+| `--gpu-mediapackage` | `-p` | Allow GPU hardware encoding for MediaPackage/H.264. |
+| `--force-width <px>` | `-W` | Enforce target video width in pixels. |
+| `--force-height <px>` | `-H` | Enforce target video height in pixels. |
+| `--bitrate <kbits>` | `-r` | Target bitrate in kbit/s (0 = auto). |
+| `--gpu <type>` | `-g` | GPU encoder: `auto`, `nvidia`, `amd`, `intel`, or `none` (CPU only). |
+| `--parallel-jobs <n>` | `-j` | Number of parallel encoding processes (0 = auto). |
+| `--no-gui` | | Run task completely in background without GUI window (aliases: `--headless`, `--background`). |
+| `--help` | | Display command line help screen. |
+| `--version` | | Display version information. |
+
+### Return Codes
+
+| Code | Meaning |
+|---|---|
+| `0` | OK (Conversion completed successfully) |
+| `1` | Target file already exists and cannot be overwritten |
+| `2` | Process was cancelled |
+| `3` | Target framerate does not differ enough from source framerate |
+| `4` | Target framerate is illegal (allowed: 10 - 200 FPS) |
+| `5` | Command line parameter error / invalid arguments |
+| `6` | Input file error (not a valid video file) |
+| `7` | GPL v2 license was not accepted |
+| `8` | Target file is corrupt |
+| `100` | Generic / unknown error |
+
 ### Background / Headless Execution (No GUI)
 
 To run conversions completely in the background without opening any GUI window:

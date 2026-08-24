@@ -2,19 +2,6 @@ using CommandLine;
 
 namespace NewFPSConverter;
 
-//command line parameters:
-//====================
-//-b, --batch					no
-//-s, --source					--
-//-t, --target					--
-//-k, --key-frames-only			no
-//-f, --frames-per-second		input fps * 2
-//-o, --overwrite				ask
-//-v, --version					--
-//-h, --help					--
-//-a, --audio                   --
-//-B, --bitrate                 --
-
 public class Options
 {
     [Option('b', "batch", Required = false, HelpText = "Enable batch behavior: Run once, then terminate automatically.")]
