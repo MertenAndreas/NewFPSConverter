@@ -1,6 +1,8 @@
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
+using CommandLine;
 
 namespace NewFPSConverter;
 
@@ -15,13 +17,49 @@ public partial class App : Application
         DispatcherUnhandledException += App_DispatcherUnhandledException;
 
         base.OnStartup(e);
+
+        var args = e.Args;
+        var isNoGui = false;
+
+        var parserResult = new Parser(settings =>
+        {
+            settings.IgnoreUnknownArguments = true;
+            settings.HelpWriter = null;
+        }).ParseArguments<Options>(args);
+
+        parserResult.WithParsed(options =>
+        {
+            isNoGui = options.NoGui;
+        });
+
+        var mainWindow = new MainWindow();
+
+        if (isNoGui)
+        {
+            mainWindow.WindowState = WindowState.Minimized;
+            mainWindow.ShowInTaskbar = false;
+            mainWindow.Visibility = Visibility.Hidden;
+        }
+        else
+        {
+            mainWindow.Show();
+        }
     }
 
     private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         LogException(e.Exception);
         e.Handled = true;
-        MessageBox.Show($"Unhandled UI exception: {e.Exception.Message}", "Startup error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+        if (Environment.GetCommandLineArgs().Length <= 1)
+        {
+            MessageBox.Show($"Unhandled UI exception: {e.Exception.Message}", "Startup error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        else
+        {
+            Console.Error.WriteLine($"Unhandled exception: {e.Exception.Message}");
+        }
+
         Current.Shutdown(1);
     }
 

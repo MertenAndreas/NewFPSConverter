@@ -61,6 +61,20 @@ NewFPSConverter.exe --batch --source-dir "C:\Videos\Input" --target-dir "C:\Vide
 Batch output defaults to MediaPackage (`.mpkg`). Use `--overwrite` to replace
 existing target files.
 
+### Background / Headless Execution (No GUI)
+
+To run conversions completely in the background without opening any GUI window:
+
+```powershell
+NewFPSConverter.exe --source "input.mp4" --target "output.mpkg" --frames-per-second 30 --no-gui
+```
+
+or for batch processing:
+
+```powershell
+NewFPSConverter.exe --batch --source-dir "C:\Videos\Input" --target-dir "C:\Videos\Output" --frames-per-second 30 --no-gui
+```
+
 ## Background
 
 Created by Thomas Sebastian. This project is derived from the Free Video FPS

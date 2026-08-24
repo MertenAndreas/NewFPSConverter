@@ -70,5 +70,13 @@ public class Options
 
     [Option('j', "parallel-jobs", Required = false, Default = 0, HelpText = "Number of parallel ffmpeg processes (0 = auto).")]
     public int ParallelJobs { get; set; } = 0;
-}
 
+    [Option("no-gui", Required = false, HelpText = "Run task in background without displaying the graphical user interface (GUI).")]
+    public bool NoGui { get; set; }
+
+    [Option("headless", Required = false, Hidden = true, HelpText = "Alias for --no-gui.")]
+    public bool Headless { get => NoGui; set => NoGui = value; }
+
+    [Option("background", Required = false, Hidden = true, HelpText = "Alias for --no-gui.")]
+    public bool Background { get => NoGui; set => NoGui = value; }
+}

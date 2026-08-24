@@ -250,18 +250,18 @@
     <section class="section">
       <h2>Command Line</h2>
       <div class="steps">
-        <p class="muted">Single-file conversion uses source and target files. The default output extension is MediaPackage.</p>
-        <code>NewFPSConverter.exe --source "input.mp4" --target "output.mpkg" --frames-per-second 30</code>
+        <p class="muted">Single-file conversion uses source and target files. Add <code>--no-gui</code> to run in the background without displaying a GUI.</p>
+        <code>NewFPSConverter.exe --source "input.mp4" --target "output.mpkg" --frames-per-second 30 --no-gui</code>
         <p class="muted">Batch conversion uses source and target folders.</p>
-        <code>NewFPSConverter.exe --batch --source-dir "C:\Videos\Input" --target-dir "C:\Videos\Output" --frames-per-second 30</code>
+        <code>NewFPSConverter.exe --batch --source-dir "C:\Videos\Input" --target-dir "C:\Videos\Output" --frames-per-second 30 --no-gui</code>
       </div>
     </section>
 
     <section class="section">
       <h2>Build From Source</h2>
       <div class="steps">
-        <p class="muted">Build the Windows desktop application with the .NET SDK:</p>
-        <code>dotnet publish FramerateConverter\NewFPSConverter.csproj -c Release</code>
+        <p class="muted">Build the self-contained Windows desktop application with the .NET SDK:</p>
+        <code>dotnet publish FramerateConverter\NewFPSConverter.csproj -c Release -r win-x64 --self-contained true</code>
         <p class="muted">Use Inno Setup with <strong>installer.iss</strong> to create the Windows installer.</p>
       </div>
     </section>

@@ -677,6 +677,13 @@ namespace NewFPSConverter;
             ToggleSwitchBatchMode.IsChecked = _cmdLineOpts.BatchMode;
             SetBatchModeUi(_cmdLineOpts.BatchMode);
 
+            if (_cmdLineOpts.NoGui)
+            {
+                WindowState = WindowState.Minimized;
+                ShowInTaskbar = false;
+                Visibility = Visibility.Hidden;
+            }
+
             if (_cmdLineOpts.FramesPerSecond != null)
             {
                 if (_cmdLineOpts.FramesPerSecond < 10)
@@ -1026,7 +1033,7 @@ namespace NewFPSConverter;
                 .OrderBy(Path.GetFileName)
                 .ToList();
 
-            if (!_cmdLineOpts.BatchMode && existingTargetFiles.Count > 0)
+            if (!_cmdLineOpts.BatchMode && !_isCommandLineMode && existingTargetFiles.Count > 0)
             {
                 overwriteExistingFiles = AskOverwriteExistingBatchFiles(existingTargetFiles);
             }
