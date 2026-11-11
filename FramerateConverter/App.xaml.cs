@@ -20,6 +20,7 @@ public partial class App : Application
 
         var args = e.Args;
         var isNoGui = false;
+        var listGpus = false;
 
         var parserResult = new Parser(settings =>
         {
@@ -30,7 +31,15 @@ public partial class App : Application
         parserResult.WithParsed(options =>
         {
             isNoGui = options.NoGui;
+            listGpus = options.ListGpus;
         });
+
+        if (listGpus)
+        {
+            GpuDetector.PrintAvailableGpus();
+            Shutdown((int)ErrorCodes.Ok);
+            return;
+        }
 
         var mainWindow = new MainWindow();
 

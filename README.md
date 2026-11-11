@@ -4,7 +4,7 @@ NewFPS Converter is a Windows desktop tool for converting video files to a
 specified frame rate. It is designed for workflows where a fixed output frame
 rate is required, including video preparation for e:cue Sympholight projects.
 
-Current release: `0.1.0.4`
+Current release: `0.1.0.5`
 
 ## Features
 
@@ -81,7 +81,8 @@ existing target files.
 | `--force-width <px>` | `-W` | Enforce target video width in pixels. |
 | `--force-height <px>` | `-H` | Enforce target video height in pixels. |
 | `--bitrate <kbits>` | `-r` | Target bitrate in kbit/s (0 = auto). |
-| `--gpu <type>` | `-g` | GPU encoder: `auto`, `nvidia`, `amd`, `intel`, or `none` (CPU only). |
+| `--gpu <device>` | `-g` | GPU device or type: `auto`, `none`, vendor (`nvidia`, `amd`, `intel`), index (`0`, `1`), or device name. |
+| `--list-gpus` | | List all detected hardware graphics cards (GPUs) and exit. |
 | `--parallel-jobs <n>` | `-j` | Number of parallel encoding processes (0 = auto). |
 | `--no-gui` | | Run task completely in background without GUI window (aliases: `--headless`, `--background`). |
 | `--help` | | Display command line help screen. |

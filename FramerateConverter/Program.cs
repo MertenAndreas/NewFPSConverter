@@ -18,6 +18,13 @@ internal static class Program
             Console.OutputEncoding = Encoding.UTF8;
         }
 
+        if (args.Any(a => a.Equals("--list-gpus", StringComparison.OrdinalIgnoreCase)
+                       || a.Equals("-list-gpus", StringComparison.OrdinalIgnoreCase)))
+        {
+            GpuDetector.PrintAvailableGpus();
+            return (int)ErrorCodes.Ok;
+        }
+
         var app = new App();
         app.InitializeComponent();
         return app.Run();

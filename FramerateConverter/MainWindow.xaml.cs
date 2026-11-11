@@ -280,6 +280,7 @@ namespace NewFPSConverter;
 #endif
 
             InitializeComponent();
+            InitializeGpuComboBox();
 
             // Set DataContext so Bindings work
             DataContext = this;
@@ -621,6 +622,13 @@ namespace NewFPSConverter;
         {
             _cmdLineOpts = options;
 
+            if (options.ListGpus)
+            {
+                GpuDetector.PrintAvailableGpus();
+                Application.Current.Shutdown((int)ErrorCodes.Ok);
+                return;
+            }
+
             if (!string.IsNullOrEmpty(_cmdLineOpts.SourceFile))
             {
                 SourceFilename = _cmdLineOpts.SourceFile;
@@ -670,7 +678,7 @@ namespace NewFPSConverter;
                 0 or 8000 or 12000 or 19000 or 25000 => BitRate.ToString(CultureInfo.InvariantCulture),
                 _ => null
             };
-            ComboBoxGpuType.SelectedValue = _cmdLineOpts.GpuType;
+            SetSelectedGpu(_cmdLineOpts.GpuType);
             NumberBoxParallelJobs.Value = _cmdLineOpts.ParallelJobs;
             RefreshHardwareStatus();
 
@@ -1044,7 +1052,7 @@ namespace NewFPSConverter;
 
             var ffmpegPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ExecutableFFmpeg);
             var gpuPreference = ComboBoxGpuType.SelectedValue as string ?? _cmdLineOpts.GpuType;
-            var gpuType = GpuDetector.DetectGpu(gpuPreference, ffmpegPath);
+            var (gpuType, selectedAdapter) = GpuDetector.ResolveGpu(gpuPreference, ffmpegPath);
             var parallelJobs = GetSelectedParallelJobCount(gpuType);
 
             _cmdLineOpts.SourceDirectory = sourceDirectory;
@@ -1061,7 +1069,8 @@ namespace NewFPSConverter;
             ProgressBarConversion.Value = 0;
             OriginalFrameRateText = $"Batch: 0 of {sourceFiles.Count} files completed.";
 
-            AddToLog($"Batch conversion started: {sourceFiles.Count} files, {parallelJobs} parallel job(s), encoder mode {gpuType}.");
+            var adapterInfo = selectedAdapter != null ? $" ({selectedAdapter.Name})" : string.Empty;
+            AddToLog($"Batch conversion started: {sourceFiles.Count} files, {parallelJobs} parallel job(s), encoder mode {gpuType}{adapterInfo}.");
             if (outputExtension.Equals(CompressedFileExtension, StringComparison.OrdinalIgnoreCase)
                 || outputExtension.Equals(".h264", StringComparison.OrdinalIgnoreCase))
             {
@@ -1078,7 +1087,7 @@ namespace NewFPSConverter;
                     await semaphore.WaitAsync(_batchCancellationTokenSource.Token);
                     try
                     {
-                        var success = await ConvertBatchFileAsync(sourceFile, index + 1, sourceFiles.Count, targetDirectory, outputExtension, overwriteExistingFiles, gpuType, _batchCancellationTokenSource.Token);
+                        var success = await ConvertBatchFileAsync(sourceFile, index + 1, sourceFiles.Count, targetDirectory, outputExtension, overwriteExistingFiles, gpuType, selectedAdapter, _batchCancellationTokenSource.Token);
                         if (!success)
                         {
                             Interlocked.Increment(ref failed);
@@ -1179,6 +1188,7 @@ namespace NewFPSConverter;
             string outputExtension,
             bool overwriteExistingFiles,
             GpuDetector.GpuType gpuType,
+            GpuAdapterInfo? gpuAdapter,
             CancellationToken cancellationToken)
         {
             var packageRequired = outputExtension.Equals(CompressedFileExtension, StringComparison.OrdinalIgnoreCase);
@@ -1214,7 +1224,7 @@ namespace NewFPSConverter;
                 var forceTargetSize = ShouldForceTargetSize;
                 var bitrateInKBits = BitRate > 0 ? BitRate : CalculateBitRate(targetSize.Width, targetSize.Height, targetFrameRate);
                 var ffmpegPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ExecutableFFmpeg);
-                var arguments = BuildBatchFfmpegArguments(sourceFile, conversionTargetFile, targetFrameRate, bitrateInKBits, gpuType, forceTargetSize ? targetSize : null);
+                var arguments = BuildBatchFfmpegArguments(sourceFile, conversionTargetFile, targetFrameRate, bitrateInKBits, gpuType, gpuAdapter, forceTargetSize ? targetSize : null);
 
                 AddToLog($"Batch converting: {Path.GetFileName(sourceFile)} -> {Path.GetFileName(targetFile)}");
                 if (SlCompatibility)
@@ -1325,7 +1335,7 @@ namespace NewFPSConverter;
             return targetFrameRate;
         }
 
-        private string BuildBatchFfmpegArguments(string sourceFile, string targetFile, double targetFrameRate, int bitrateInKBits, GpuDetector.GpuType gpuType, VideoSize? forcedTargetSize)
+        private string BuildBatchFfmpegArguments(string sourceFile, string targetFile, double targetFrameRate, int bitrateInKBits, GpuDetector.GpuType gpuType, GpuAdapterInfo? gpuAdapter, VideoSize? forcedTargetSize)
         {
             var targetExtension = Path.GetExtension(targetFile).ToLowerInvariant();
             var experimentalGpuH264 = GpuMediaPackage && targetExtension is ".h264" && gpuType != GpuDetector.GpuType.None;
@@ -1362,7 +1372,7 @@ namespace NewFPSConverter;
 
             args.Add("-c:v");
             args.Add(encoder);
-            args.AddRange(GetBatchEncoderOptions(encoder, bitrateInKBits, sympholightCompatibleH264, experimentalGpuH264));
+            args.AddRange(GetBatchEncoderOptions(encoder, bitrateInKBits, sympholightCompatibleH264, experimentalGpuH264, gpuAdapter));
 
             if (KeepAudio && targetExtension is not ".h264" and not ".ivf")
             {
@@ -1415,7 +1425,7 @@ namespace NewFPSConverter;
             return GpuDetector.GetEncoderName(gpuType, "libx264");
         }
 
-        private IEnumerable<string> GetBatchEncoderOptions(string encoder, int bitrateInKBits, bool sympholightCompatibleH264, bool experimentalGpuH264)
+        private IEnumerable<string> GetBatchEncoderOptions(string encoder, int bitrateInKBits, bool sympholightCompatibleH264, bool experimentalGpuH264, GpuAdapterInfo? gpuAdapter = null)
         {
             var options = new List<string>();
 
@@ -1457,7 +1467,7 @@ namespace NewFPSConverter;
 
             if (sympholightCompatibleH264 && experimentalGpuH264)
             {
-                options.AddRange(GetExperimentalGpuH264Options(encoder, bitrateInKBits));
+                options.AddRange(GetExperimentalGpuH264Options(encoder, bitrateInKBits, gpuAdapter));
                 return options;
             }
 
@@ -1478,22 +1488,50 @@ namespace NewFPSConverter;
                     options.Add("0");
                 }
             }
-            else if (KeyFramesOnly)
+            else
             {
-                options.Add("-g");
-                options.Add("1");
-                options.Add("-forced-idr");
-                options.Add("1");
+                if (encoder is "h264_nvenc" or "hevc_nvenc")
+                {
+                    if (gpuAdapter != null)
+                    {
+                        options.Add("-gpu");
+                        options.Add(gpuAdapter.VendorIndex.ToString(CultureInfo.InvariantCulture));
+                    }
+                }
+                else if (encoder is "h264_qsv" or "hevc_qsv")
+                {
+                    if (gpuAdapter != null && gpuAdapter.VendorIndex > 0)
+                    {
+                        options.Add("-qsv_device");
+                        options.Add(gpuAdapter.VendorIndex.ToString(CultureInfo.InvariantCulture));
+                    }
+                }
+                else if (encoder is "h264_amf" or "hevc_amf")
+                {
+                    if (gpuAdapter != null)
+                    {
+                        options.Add("-gpu");
+                        options.Add(gpuAdapter.VendorIndex.ToString(CultureInfo.InvariantCulture));
+                    }
+                }
+
+                if (KeyFramesOnly)
+                {
+                    options.Add("-g");
+                    options.Add("1");
+                    options.Add("-forced-idr");
+                    options.Add("1");
+                }
             }
 
             return options;
         }
 
-        private static IEnumerable<string> GetExperimentalGpuH264Options(string encoder, int bitrateInKBits)
+        private static IEnumerable<string> GetExperimentalGpuH264Options(string encoder, int bitrateInKBits, GpuAdapterInfo? gpuAdapter = null)
         {
             if (encoder == "h264_nvenc")
             {
-                return new[]
+                var opts = new List<string>
                 {
                     "-rc", "cbr",
                     "-maxrate", $"{bitrateInKBits}K",
@@ -1504,11 +1542,17 @@ namespace NewFPSConverter;
                     "-preset", "p4",
                     "-tune", "ull"
                 };
+                if (gpuAdapter != null)
+                {
+                    opts.Add("-gpu");
+                    opts.Add(gpuAdapter.VendorIndex.ToString(CultureInfo.InvariantCulture));
+                }
+                return opts;
             }
 
             if (encoder == "h264_amf")
             {
-                return new[]
+                var opts = new List<string>
                 {
                     "-rc", "cbr",
                     "-maxrate", $"{bitrateInKBits}K",
@@ -1516,19 +1560,31 @@ namespace NewFPSConverter;
                     "-g", "1",
                     "-bf", "0"
                 };
+                if (gpuAdapter != null)
+                {
+                    opts.Add("-gpu");
+                    opts.Add(gpuAdapter.VendorIndex.ToString(CultureInfo.InvariantCulture));
+                }
+                return opts;
             }
 
             if (encoder == "h264_qsv")
             {
-                return new[]
+                var opts = new List<string>
                 {
                     "-global_quality", "20",
                     "-g", "1",
                     "-bf", "0"
                 };
+                if (gpuAdapter != null && gpuAdapter.VendorIndex > 0)
+                {
+                    opts.Add("-qsv_device");
+                    opts.Add(gpuAdapter.VendorIndex.ToString(CultureInfo.InvariantCulture));
+                }
+                return opts;
             }
 
-            return new[] { "-g", "1", "-keyint_min", "0" };
+            return new[] { "-g", "1", "-forced-idr", "1" };
         }
 
         private async Task<bool> RunBatchFfmpegAsync(
@@ -1900,6 +1956,110 @@ namespace NewFPSConverter;
             UpdateSlCompatibilityControlState(enabled);
         }
 
+        private void InitializeGpuComboBox()
+        {
+            ComboBoxGpuType.Items.Clear();
+
+            ComboBoxGpuType.Items.Add(new ComboBoxItem
+            {
+                Content = "Auto detect",
+                Tag = "auto"
+            });
+
+            var adapters = GpuDetector.GetAvailableAdapters();
+            if (adapters.Count > 0)
+            {
+                foreach (var adapter in adapters)
+                {
+                    ComboBoxGpuType.Items.Add(new ComboBoxItem
+                    {
+                        Content = $"[{adapter.Index}] {adapter.Name} ({adapter.EncoderTechnology})",
+                        Tag = adapter.Index.ToString(CultureInfo.InvariantCulture)
+                    });
+                }
+            }
+            else
+            {
+                ComboBoxGpuType.Items.Add(new ComboBoxItem { Content = "NVIDIA NVENC", Tag = "nvidia" });
+                ComboBoxGpuType.Items.Add(new ComboBoxItem { Content = "AMD AMF", Tag = "amd" });
+                ComboBoxGpuType.Items.Add(new ComboBoxItem { Content = "Intel Quick Sync", Tag = "intel" });
+            }
+
+            ComboBoxGpuType.Items.Add(new ComboBoxItem
+            {
+                Content = "CPU only",
+                Tag = "none"
+            });
+
+            ComboBoxGpuType.SelectedValue = "auto";
+        }
+
+        private void SetSelectedGpu(string? gpuPreference)
+        {
+            if (string.IsNullOrWhiteSpace(gpuPreference) || gpuPreference.Equals("auto", StringComparison.OrdinalIgnoreCase))
+            {
+                ComboBoxGpuType.SelectedValue = "auto";
+                return;
+            }
+
+            if (gpuPreference.Equals("none", StringComparison.OrdinalIgnoreCase) ||
+                gpuPreference.Equals("cpu", StringComparison.OrdinalIgnoreCase))
+            {
+                ComboBoxGpuType.SelectedValue = "none";
+                return;
+            }
+
+            // Direct tag match (e.g. index "0", "1", or "nvidia")
+            foreach (ComboBoxItem item in ComboBoxGpuType.Items)
+            {
+                if (string.Equals(item.Tag as string, gpuPreference, StringComparison.OrdinalIgnoreCase))
+                {
+                    ComboBoxGpuType.SelectedItem = item;
+                    return;
+                }
+            }
+
+            // Semantic match via GpuDetector.ResolveGpu
+            var (resolvedType, adapter) = GpuDetector.ResolveGpu(gpuPreference);
+            if (adapter != null)
+            {
+                var adapterTag = adapter.Index.ToString(CultureInfo.InvariantCulture);
+                foreach (ComboBoxItem item in ComboBoxGpuType.Items)
+                {
+                    if (string.Equals(item.Tag as string, adapterTag, StringComparison.OrdinalIgnoreCase))
+                    {
+                        ComboBoxGpuType.SelectedItem = item;
+                        return;
+                    }
+                }
+            }
+
+            if (resolvedType != GpuDetector.GpuType.None)
+            {
+                var vendorTag = resolvedType switch
+                {
+                    GpuDetector.GpuType.Nvidia => "nvidia",
+                    GpuDetector.GpuType.Intel => "intel",
+                    GpuDetector.GpuType.Amd => "amd",
+                    _ => null
+                };
+
+                if (vendorTag != null)
+                {
+                    foreach (ComboBoxItem item in ComboBoxGpuType.Items)
+                    {
+                        if (string.Equals(item.Tag as string, vendorTag, StringComparison.OrdinalIgnoreCase))
+                        {
+                            ComboBoxGpuType.SelectedItem = item;
+                            return;
+                        }
+                    }
+                }
+            }
+
+            ComboBoxGpuType.SelectedValue = "auto";
+        }
+
         private async void RefreshHardwareStatus()
         {
             var ffmpegPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ExecutableFFmpeg);
@@ -1907,13 +2067,13 @@ namespace NewFPSConverter;
 
             HardwareStatusText = "Hardware: detecting...";
 
-            var detectedGpu = await Task.Run(() => GpuDetector.DetectGpu(gpuPreference, ffmpegPath));
+            var (detectedGpu, adapter) = await Task.Run(() => GpuDetector.ResolveGpu(gpuPreference, ffmpegPath));
             var encoder = GpuDetector.GetEncoderName(detectedGpu);
             var mode = detectedGpu switch
             {
-                GpuDetector.GpuType.Nvidia => "NVIDIA NVENC",
-                GpuDetector.GpuType.Amd => "AMD AMF",
-                GpuDetector.GpuType.Intel => "Intel Quick Sync",
+                GpuDetector.GpuType.Nvidia => adapter != null ? $"NVIDIA NVENC ({adapter.Name})" : "NVIDIA NVENC",
+                GpuDetector.GpuType.Amd => adapter != null ? $"AMD AMF ({adapter.Name})" : "AMD AMF",
+                GpuDetector.GpuType.Intel => adapter != null ? $"Intel Quick Sync ({adapter.Name})" : "Intel Quick Sync",
                 _ => "CPU"
             };
 

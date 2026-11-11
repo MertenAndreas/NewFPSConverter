@@ -52,8 +52,11 @@ public class Options
     [Option('r', "bitrate", Required = false, HelpText = "Target bit rate in KBits/sec.")]
     public int BitrateKBits { get; set; }
 
-    [Option('g', "gpu", Required = false, Default = "auto", HelpText = "GPU type: auto, nvidia, amd, intel, or none (CPU only).")]
+    [Option('g', "gpu", Required = false, Default = "auto", HelpText = "GPU device or type: 'auto', 'none', vendor ('nvidia', 'intel', 'amd'), GPU index (e.g. '0', '1'), or device name.")]
     public string GpuType { get; set; } = "auto";
+
+    [Option("list-gpus", Required = false, HelpText = "List all detected hardware graphics cards (GPUs) and exit.")]
+    public bool ListGpus { get; set; }
 
     [Option('j', "parallel-jobs", Required = false, Default = 0, HelpText = "Number of parallel ffmpeg processes (0 = auto).")]
     public int ParallelJobs { get; set; } = 0;

@@ -245,7 +245,7 @@
       <div>
         <p class="eyebrow">Windows video FPS conversion</p>
         <h1>NewFPS Converter</h1>
-        <p class="lead">Convert video files to a defined frame rate, process batches, and prepare MediaPackage output. Current release: 0.1.0.4.</p>
+        <p class="lead">Convert video files to a defined frame rate, process batches, and prepare MediaPackage output. Current release: 0.1.0.5.</p>
         <div class="actions">
           <a class="button" href="https://github.com/thomsenle/NewFPSConverter/releases">Download release</a>
           <a class="button secondary" href="https://github.com/thomsenle/NewFPSConverter">View source</a>
@@ -315,7 +315,8 @@
           <tr><td><code>--force-width &lt;px&gt;</code></td><td><code>-W</code></td><td>Enforce target video width in pixels.</td></tr>
           <tr><td><code>--force-height &lt;px&gt;</code></td><td><code>-H</code></td><td>Enforce target video height in pixels.</td></tr>
           <tr><td><code>--bitrate &lt;kbits&gt;</code></td><td><code>-r</code></td><td>Target bitrate in kbit/s (0 = auto).</td></tr>
-          <tr><td><code>--gpu &lt;type&gt;</code></td><td><code>-g</code></td><td>GPU encoder: <code>auto</code>, <code>nvidia</code>, <code>amd</code>, <code>intel</code>, or <code>none</code> (CPU only).</td></tr>
+          <tr><td><code>--gpu &lt;device&gt;</code></td><td><code>-g</code></td><td>GPU device or type: <code>auto</code>, <code>none</code>, vendor (<code>nvidia</code>, <code>amd</code>, <code>intel</code>), index (<code>0</code>, <code>1</code>), or device name.</td></tr>
+          <tr><td><code>--list-gpus</code></td><td></td><td>List all detected hardware graphics cards (GPUs) and exit.</td></tr>
           <tr><td><code>--parallel-jobs &lt;n&gt;</code></td><td><code>-j</code></td><td>Number of parallel encoding processes (0 = auto).</td></tr>
           <tr><td><code>--no-gui</code></td><td></td><td>Run task completely in background without GUI window (aliases: <code>--headless</code>, <code>--background</code>).</td></tr>
           <tr><td><code>--help</code></td><td></td><td>Display command line help screen.</td></tr>
