@@ -437,11 +437,12 @@ public static class GpuDetector
     /// </summary>
     public static string GetEncoderName(GpuType gpuType, string defaultCodec = "libx264")
     {
+        var isH264 = defaultCodec.Contains("264", StringComparison.OrdinalIgnoreCase);
         return gpuType switch
         {
-            GpuType.Nvidia => defaultCodec.Contains("h264") ? "h264_nvenc" : "hevc_nvenc",
-            GpuType.Amd => defaultCodec.Contains("h264") ? "h264_amf" : "hevc_amf",
-            GpuType.Intel => defaultCodec.Contains("h264") ? "h264_qsv" : "hevc_qsv",
+            GpuType.Nvidia => isH264 ? "h264_nvenc" : "hevc_nvenc",
+            GpuType.Amd => isH264 ? "h264_amf" : "hevc_amf",
+            GpuType.Intel => isH264 ? "h264_qsv" : "hevc_qsv",
             _ => defaultCodec
         };
     }

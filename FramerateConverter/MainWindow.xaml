@@ -51,7 +51,7 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Batch Mode" VerticalAlignment="Center" Width="60" FontWeight="Medium" />
+                            <TextBlock Grid.Column="0" Text="Batch Mode" VerticalAlignment="Center" Width="82" FontWeight="Medium" />
                              <ui:ToggleSwitch Grid.Column="1" 
                                               x:Name="ToggleSwitchBatchMode"
                                              Checked="ToggleSwitchBatchMode_Toggled"
@@ -66,7 +66,7 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Source" VerticalAlignment="Center" Width="60" FontWeight="Medium" />
+                            <TextBlock Grid.Column="0" Text="Source" VerticalAlignment="Center" Width="82" FontWeight="Medium" />
                             <ui:TextBox Grid.Column="1" x:Name="TextBoxSourceFilename" 
                                         PlaceholderText="Drag &amp; drop video here or browse..." 
                                         Text="{Binding SourceFilename, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
@@ -89,7 +89,7 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Directory" VerticalAlignment="Center" Width="60" FontWeight="Medium" />
+                            <TextBlock Grid.Column="0" Text="Directory" VerticalAlignment="Center" Width="82" FontWeight="Medium" />
                             <ui:TextBox Grid.Column="1" x:Name="TextBoxSourceDirectory" 
                                         PlaceholderText="Select folder with videos..." 
                                         IsReadOnly="True"
@@ -104,13 +104,35 @@
                         <Grid Margin="0,0,0,10" x:Name="GridFilesList" Visibility="Collapsed">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
-                                <RowDefinition Height="120" />
+                                <RowDefinition Height="140" />
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Text="Detected Files" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5" />
                             <ListBox Grid.Row="1" x:Name="ListBoxDetectedFiles" 
                                      Background="#1D1D1D" Foreground="#FFFFFF"
                                      BorderThickness="1" BorderBrush="#333333"
-                                     FontSize="11" />
+                                     FontSize="11"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="2,3">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <CheckBox Grid.Column="0"
+                                                      IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                      Checked="BatchSourceFileSelectionChanged"
+                                                      Unchecked="BatchSourceFileSelectionChanged"
+                                                      VerticalAlignment="Center"
+                                                      Margin="0,0,8,0" />
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding FileName}" FontWeight="SemiBold" Foreground="#FFFFFF" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding AnalysisText}" FontSize="10" Foreground="#AAAAAA" TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
                         </Grid>
 
                         <!-- Target File (Single Mode) -->
@@ -120,7 +142,7 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Target" VerticalAlignment="Center" Width="60" FontWeight="Medium" />
+                            <TextBlock Grid.Column="0" Text="Target" VerticalAlignment="Center" Width="82" FontWeight="Medium" />
                             <ui:TextBox Grid.Column="1" x:Name="TextBoxTargetFilename" 
                                         PlaceholderText="Specify output video path..." 
                                         Text="{Binding TargetFilename, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -143,7 +165,7 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Output Dir" VerticalAlignment="Center" Width="60" FontWeight="Medium" />
+                            <TextBlock Grid.Column="0" Text="Output Dir" VerticalAlignment="Center" Width="82" FontWeight="Medium" />
                             <ui:TextBox Grid.Column="1" x:Name="TextBoxTargetDirectory" 
                                         PlaceholderText="Output folder for converted videos..." 
                                         IsReadOnly="True"
@@ -159,7 +181,7 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Format" VerticalAlignment="Center" Width="60" FontWeight="Medium" />
+                            <TextBlock Grid.Column="0" Text="Format" VerticalAlignment="Center" Width="82" FontWeight="Medium" />
                             <ComboBox Grid.Column="1" x:Name="ComboBoxBatchOutputFormat" Margin="5,0" SelectedValuePath="Tag" SelectedValue=".mpkg">
                                 <ComboBoxItem Tag=".mp4">MP4 Video</ComboBoxItem>
                                 <ComboBoxItem Tag=".mkv">Matroska Video</ComboBoxItem>
@@ -305,7 +327,7 @@
                             <Separator Margin="0,5,0,15" />
 
                             <StackPanel Margin="0,0,0,15">
-                                <TextBlock Text="Batch Encoding" FontWeight="Medium" Margin="0,0,0,6" />
+                                <TextBlock Text="Hardware / GPU Encoding" FontWeight="Medium" Margin="0,0,0,6" />
                                 <ComboBox x:Name="ComboBoxGpuType" SelectedValuePath="Tag" SelectedValue="auto"
                                           SelectionChanged="ComboBoxGpuType_SelectionChanged">
                                     <ComboBoxItem Tag="auto">Auto detect</ComboBoxItem>

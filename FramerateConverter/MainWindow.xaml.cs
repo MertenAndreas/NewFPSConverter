@@ -1123,8 +1123,15 @@ namespace NewFPSConverter;
                 return;
             }
 
-            AddToLog($"Batch conversion done. Successful: {sourceFiles.Count - failed}, failed: {failed}.");
-            if (sourceFiles.Count - failed > 0)
+            var succeeded = sourceFiles.Count - failed;
+            AddToLog($"Batch conversion done. Successful: {succeeded}, failed: {failed}.");
+            if (failed > 0)
+            {
+                await Application.Current.Dispatcher.InvokeAsync(
+                    () => OriginalFrameRateText = $"Batch finished with errors: {succeeded} succeeded, {failed} failed.");
+            }
+
+            if (succeeded > 0)
             {
                 OpenOutputDirectoryIfRequested(targetDirectory);
             }
@@ -1388,6 +1395,48 @@ namespace NewFPSConverter;
             return string.Join(" ", args);
         }
 
+        private string BuildSingleGpuFfmpegArguments(
+            string sourceFile,
+            string targetFile,
+            double targetFrameRate,
+            int bitrateInKBits,
+            GpuDetector.GpuType gpuType,
+            GpuAdapterInfo? gpuAdapter,
+            bool sympholightCompatibleH264,
+            VideoSize? forcedTargetSize)
+        {
+            var experimentalGpuH264 = GpuMediaPackage && sympholightCompatibleH264;
+            var encoder = GpuDetector.GetEncoderName(gpuType, "libx264");
+            var fps = targetFrameRate.ToString(CultureInfo.InvariantCulture);
+            var args = new List<string>
+            {
+                "-y",
+                "-r",
+                fps,
+                "-i",
+                Quote(sourceFile)
+            };
+
+            if (forcedTargetSize.HasValue)
+            {
+                var filter = BuildBatchVideoFilter(fps, sympholightCompatibleH264, forcedTargetSize);
+                args.Add(sympholightCompatibleH264 ? "-filter_complex" : "-vf");
+                args.Add(Quote(filter));
+            }
+            else
+            {
+                args.Add("-vf");
+                args.Add(Quote($"fps={fps}"));
+            }
+
+            args.Add("-c:v");
+            args.Add(encoder);
+            args.AddRange(GetBatchEncoderOptions(encoder, bitrateInKBits, sympholightCompatibleH264, experimentalGpuH264, gpuAdapter));
+            args.Add("-an");
+            args.Add(Quote(targetFile));
+            return string.Join(" ", args);
+        }
+
         private static string BuildBatchVideoFilter(string fps, bool sympholightCompatibleH264, VideoSize? forcedTargetSize)
         {
             if (sympholightCompatibleH264 && forcedTargetSize.HasValue)
@@ -1519,8 +1568,16 @@ namespace NewFPSConverter;
                 {
                     options.Add("-g");
                     options.Add("1");
-                    options.Add("-forced-idr");
-                    options.Add("1");
+                    if (encoder is "h264_nvenc" or "hevc_nvenc")
+                    {
+                        options.Add("-forced-idr");
+                        options.Add("1");
+                    }
+                    else if (encoder is "h264_qsv" or "hevc_qsv" or "h264_amf" or "hevc_amf")
+                    {
+                        options.Add("-forced_idr");
+                        options.Add("1");
+                    }
                 }
             }
 
@@ -1558,6 +1615,7 @@ namespace NewFPSConverter;
                     "-maxrate", $"{bitrateInKBits}K",
                     "-bufsize", "1000K",
                     "-g", "1",
+                    "-forced_idr", "1",
                     "-bf", "0"
                 };
                 if (gpuAdapter != null)
@@ -1574,6 +1632,7 @@ namespace NewFPSConverter;
                 {
                     "-global_quality", "20",
                     "-g", "1",
+                    "-forced_idr", "1",
                     "-bf", "0"
                 };
                 if (gpuAdapter != null && gpuAdapter.VendorIndex > 0)
@@ -1584,7 +1643,7 @@ namespace NewFPSConverter;
                 return opts;
             }
 
-            return new[] { "-g", "1", "-forced-idr", "1" };
+            return new[] { "-g", "1" };
         }
 
         private async Task<bool> RunBatchFfmpegAsync(
@@ -2723,18 +2782,50 @@ namespace NewFPSConverter;
                 // convert the video
                 var targetFilename = string.IsNullOrEmpty(_tempCompressionTargetFile) ? TargetFilename : _tempCompressionTargetFile;
                 
-                if (forcedWidth != 0 && forcedHeight != 0)
+                var outputVideoFile = string.IsNullOrEmpty(_tempVideoFile) ? targetFilename : _tempVideoFile;
+                var gpuPreference = ComboBoxGpuType.SelectedValue as string ?? _cmdLineOpts?.GpuType ?? "auto";
+                var (singleGpuType, singleGpuAdapter) = GpuDetector.ResolveGpu(gpuPreference, ffmpegCommand);
+                var useSingleGpu = targetExtension is not ".webm" and not ".ivf"
+                                   && singleGpuType != GpuDetector.GpuType.None
+                                   && (GpuMediaPackage || !sympholightCompatibleH264);
+
+                if (useSingleGpu)
                 {
-                    ffmpegParameters = string.Format(ffmpegParametersString, SourceFilename, string.IsNullOrEmpty(_tempVideoFile) ? targetFilename : _tempVideoFile, bitrateInKBits, forcedWidth, forcedHeight, TargetFrameRate.ToString(CultureInfo.InvariantCulture));
+                    var bitrateInt = BitRate > 0 ? BitRate : CalculateBitRate(targetSize.Width, targetSize.Height, TargetFrameRate);
+                    var forcedTargetSize = forcedWidth != 0 && forcedHeight != 0 ? new VideoSize(forcedWidth, forcedHeight) : (VideoSize?)null;
+                    var gpuEncoder = GpuDetector.GetEncoderName(singleGpuType, "libx264");
+                    var adapterDesc = singleGpuAdapter != null ? $" ({singleGpuAdapter.Name})" : string.Empty;
+                    AddToLog($"Video encoder mode: {singleGpuType}{adapterDesc} ({gpuEncoder}).");
+                    ffmpegParameters = BuildSingleGpuFfmpegArguments(
+                        SourceFilename,
+                        outputVideoFile,
+                        TargetFrameRate,
+                        bitrateInt,
+                        singleGpuType,
+                        singleGpuAdapter,
+                        sympholightCompatibleH264,
+                        forcedTargetSize);
                 }
                 else
                 {
-                    ffmpegParameters = string.Format(ffmpegParametersString, SourceFilename, string.IsNullOrEmpty(_tempVideoFile) ? targetFilename : _tempVideoFile, bitrateInKBits);
-                }
+                    if (sympholightCompatibleH264 && !GpuMediaPackage && singleGpuType != GpuDetector.GpuType.None)
+                    {
+                        AddToLog("GPU note: MediaPackage and raw H.264 use CPU libx264 for Sympholight-compatible encoding. Enable 'GPU MediaPackage Encoding' to test GPU encoding.");
+                    }
 
-                // Inject -r fps before -i to avoid AviSynth dependency
-                var fpsStr = TargetFrameRate.ToString(CultureInfo.InvariantCulture);
-                ffmpegParameters = ffmpegParameters.Replace(" -i \"", $" -r {fpsStr} -i \"");
+                    if (forcedWidth != 0 && forcedHeight != 0)
+                    {
+                        ffmpegParameters = string.Format(ffmpegParametersString, SourceFilename, outputVideoFile, bitrateInKBits, forcedWidth, forcedHeight, TargetFrameRate.ToString(CultureInfo.InvariantCulture));
+                    }
+                    else
+                    {
+                        ffmpegParameters = string.Format(ffmpegParametersString, SourceFilename, outputVideoFile, bitrateInKBits);
+                    }
+
+                    // Inject -r fps before -i to avoid AviSynth dependency
+                    var fpsStr = TargetFrameRate.ToString(CultureInfo.InvariantCulture);
+                    ffmpegParameters = ffmpegParameters.Replace(" -i \"", $" -r {fpsStr} -i \"");
+                }
 
                 AddToLog("--- CONVERTING VIDEO --------------------------------------------------");
                 AddToLog("Command:   " + ffmpegCommand);
@@ -3655,6 +3746,8 @@ namespace NewFPSConverter;
             public VideoInfo? VideoInfo { get; set; }
 
             public bool IsSelected { get; set; } = true;
+
+            public override string ToString() => $"{FileName} - {AnalysisText}";
         }
 
         private bool _disposedValue; // To detect redundant calls
